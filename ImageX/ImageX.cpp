@@ -12,481 +12,608 @@
 
 
 namespace var {
-    short int exit = 0;                                                 // buttons variables (flags)
-    short int addTag = 0;
-    short int delTag = 0;
-    short int changeMod = 0;
-    short int selFolder = 0;
-    short int watchMode = 0;
-    short int search = 0;
 
-    std::string imgname = "image name.jpg";
-    std::string resolution = "1920 x 1080";
-    
-    bool shortview = false;                                             // no button`s are active ( except of chosen one and the exit button ) while this variable is true
-    sf::Vector2i startpoint(550, 880);                                  // first tag position
-    tag* tags;                                                          // tags array pointer
-    int tagcount = 0;                                                   
-    int search_results = 1;
-    
-    int curTag = 0;
-    sf::Vector2i curtagpos = startpoint;                                // position of the last tag
+	// "pressed" variables (flags)
+	short int exit = 0;
+	short int addTag = 0;
+	short int delTag = 0;
+	short int changeMod = 0;
+	short int setPath = 0;
+	short int watchMode = 0;
+	short int addReplace = 0;
+	short int applyTo = 0;
+	short int search = 0;
+	short int assign = 0;
 
-    sf::Texture texture;                                                // for image(texture/sprite) loading
-    sf::Image image;
-    sf::Sprite sprite;
-    std::string curFolder;
-    short int selected = -1;
-    sf::RectangleShape imageborder;
+	// "selected" variables 
+	short int search_select = -1;
+	short int assign_select = -1;
 
-    short int search_select = -1;
+	std::string imgname = "image name.jpg";
+	std::string resolution = "1920 x 1080";
+
+	bool shortview = false;                                             // no button`s are active ( except of chosen one and the exit button ) while this variable is true
+
+	// counts
+	tag* tags;                                                          // tags array pointer
+	int tagcount = 0;
+	int search_results = 1;
+	int assign_results = 1;
+
+	int curTag = 0;
+	sf::Vector2i startpoint(550, 880);                                  // first tag position
+	sf::Vector2i curtagpos = startpoint;                                // position of the last tag
+
+
+	sf::Texture texture;                                                // for image(texture/sprite) loading
+	sf::Image image;
+	sf::Sprite sprite;
+	std::string curFolder;
+	short int selected = -1;
+	sf::RectangleShape imageborder;
+
+
+
 }
 
 
 
 static tag* tagsNumberChanged(short int n, bool add_or_delete) {
 
-    if (add_or_delete == true) {                                        // true == add         false == delete     
-        n = var::tagcount;                                              // n - place in array to insert a new tag ( at the end by default )
-        tag* p;
-        var::tagcount += 1;
-        p = new tag[var::tagcount];                                     // creating new array of tags
-        for (int i = 0; i < var::tagcount; i++) {
-            if (i > n) {
-                p[i] = var::tags[i-1];
-            }
-            else if (i == n) {
-                //p[i] = var::curTag;   
-                ////////////////////////////////////
-                //p[i] = var::tags[i];
-                //p[i + 1] = var::tags[i];
-            }
-            else {
-                p[i] = var::tags[i];
-            }
-        }
-        delete[] var::tags;                                             // deleting old array
-        return p;
-    }
-    else {
-        tag* p;
-        var::tagcount -= 1;
-        p = new tag[var::tagcount];                                     //creating new array
-        for (int i = 0; i < var::tagcount; i++) {
-            if (i > n) {
-                p[i-1] = var::tags[i];
-            }
-            else if (i == n) {
-                var::tags[i].deleteTag();
-            }
-            else {
-                p[i] = var::tags[i];
-            }
-        }
-        delete[] var::tags;                                             // deleting the old one
-        return p;
-    }
-    
+	if (add_or_delete == true) {                                        // true == add         false == delete     
+		n = var::tagcount;                                              // n - place in array to insert a new tag ( at the end by default )
+		tag* p;
+		var::tagcount += 1;
+		p = new tag[var::tagcount];                                     // creating new array of tags
+		for (int i = 0; i < var::tagcount; i++) {
+			if (i > n) {
+				p[i] = var::tags[i - 1];
+			}
+			else if (i == n) {
+				//p[i] = var::curTag;   
+				////////////////////////////////////
+				//p[i] = var::tags[i];
+				//p[i + 1] = var::tags[i];
+			}
+			else {
+				p[i] = var::tags[i];
+			}
+		}
+		delete[] var::tags;                                             // deleting old array
+		return p;
+	}
+	else {
+		tag* p;
+		var::tagcount -= 1;
+		p = new tag[var::tagcount];                                     //creating new array
+		for (int i = 0; i < var::tagcount; i++) {
+			if (i > n) {
+				p[i - 1] = var::tags[i];
+			}
+			else if (i == n) {
+				var::tags[i].deleteTag();
+			}
+			else {
+				p[i] = var::tags[i];
+			}
+		}
+		delete[] var::tags;                                             // deleting the old one
+		return p;
+	}
+
 
 }
 
 void imageLoad(int n, sf::Vector2i field) {
 
-    if (!var::image.loadFromFile(getFilePath(n))) {
-        var::imgname = "ERROR WHILE LOADING IMAGE";
-    }
-    else {
-        if (!var::texture.loadFromImage(var::image)) {
-            var::imgname = "ERROR WHILE LOADING TEXTURE";
-        }
-        else {
-            var::sprite.setTexture(var::texture, true);
-        }
-    }
+	if (!var::image.loadFromFile(getFilePath(n))) {
+		var::imgname = "ERROR WHILE LOADING IMAGE";
+	}
+	else {
+		if (!var::texture.loadFromImage(var::image)) {
+			var::imgname = "ERROR WHILE LOADING TEXTURE";
+		}
+		else {
+			var::sprite.setTexture(var::texture, true);
+		}
+	}
 
 
-    sf::Vector2u texture_size = var::texture.getSize();
-    float resize = 0.f;
+	sf::Vector2u texture_size = var::texture.getSize();
+	float resize = 0.f;
 
-    if (float(texture_size.x) / field.x > float(texture_size.y) / field.y) {
-        resize = float(texture_size.x) / field.x;
-    }
-    else {
-        resize = float(texture_size.y) / field.y;
-    }
+	if (float(texture_size.x) / field.x > float(texture_size.y) / field.y) {
+		resize = float(texture_size.x) / field.x;
+	}
+	else {
+		resize = float(texture_size.y) / field.y;
+	}
 
-    var::sprite.setScale(sf::Vector2f(1.f / resize, 1.f / resize));
-    var::sprite.setPosition(sf::Vector2f(960.f - var::texture.getSize().x / (2*resize), 490.f - var::texture.getSize().y / (2* resize)));
-    std::cout << getFilePath(n) << " path " << std::endl;
+	var::sprite.setScale(sf::Vector2f(1.f / resize, 1.f / resize));
+	var::sprite.setPosition(sf::Vector2f(960.f - var::texture.getSize().x / (2 * resize), 490.f - var::texture.getSize().y / (2 * resize)));
+	std::cout << getFilePath(n) << " path " << std::endl;
 
 };
 
 int main() {
 
-    std::string textbuffer;
-    std::string search_results[100];
-    sf::RenderWindow window;
-    window.create(sf::VideoMode(1920, 1080), "ImageX", sf::Style::Close);                      // creating main window
-    unsigned int menuStatus1 = 0;
-    unsigned int searchStatus = 0;
+	std::string textbuffer;
+	std::string search_results[100];
+	sf::RenderWindow window;
+	window.create(sf::VideoMode(1920, 1080), "ImageX", sf::Style::Close);                      // creating main window
+	/*unsigned int menuStatus1 = 0;
+	unsigned int searchStatus = 0;*/
 
-    var::tags = new tag[1];                                                                         // array of tags of the image
-    var::tagcount = 1;                                                                              // tagcount must be always bigger by 1, because of addTag function 
+	var::tags = new tag[1];                                                                         // array of tags of the image
+	var::tagcount = 1;                                                                              // tagcount must be always bigger by 1, because of addTag function 
 
-    //====== file manager ======
-    launch();
-    open(0);
-    scroll_menu menu(getcounter(), sf::Vector2i(300, 600), sf::Vector2i(1700, 540), false);         // set count of objects
+	//====== file manager ======
+	launch();
+	open(0);
+	scroll_menu menu(getcounter(), sf::Vector2i(300, 600), sf::Vector2i(1700, 540), false);         // set count of objects
 
-    scroll_menu search_menu(15/*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 320), false);
-    search_menu.setColour(150, 150, 150, 2);
-    for (int i = 0; i < getcounter(); i++) {
-        menu.setText(i, getcount(i));
-    }
+	scroll_menu search_menu(15/*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 310), false);
 
-    for (int i = 0; i < 15; i++) {
-        search_menu.setText(i, std::to_string(i));
-    }
+	scroll_menu assign_menu(15/*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 710), false);
 
 
-    // ====== Exit button =======                                                               // initialization sequence
-    char exit[12] = "Exit";
-    button Exit(sf::Vector2i(100, 40), sf::Vector2i(60, 30), window, exit);
+
+	search_menu.setColour(150, 150, 150, 2);
+	assign_menu.setColour(150, 150, 150, 2);
+	for (int i = 0; i < getcounter(); i++) {
+		menu.setText(i, getcount(i));
+	}
+
+	for (int i = 0; i < 15; i++) {
+		assign_menu.setText(i, std::to_string(i));
+
+	}
 
 
-    //====== change mod button ======
-    char mod[12] = "watch";
-    button Mod(sf::Vector2i(300, 40), sf::Vector2i(250, 30), window, mod);
-
-    //====== select folder button ======
-    char folder[] = "Select folder";
-    button Folder(sf::Vector2i(300, 40), sf::Vector2i(1700, 200), window, folder);
-
-    //====== Add tag button ======
-    char add[] = "Add tag";
-    button Add(sf::Vector2i(200, 40), sf::Vector2i(140, 900), window, add);
-
-    //====== Delete tag button ======
-    char del[12] = "Del tag";
-    button Del(sf::Vector2i(200, 40), sf::Vector2i(340, 900), window, del);
-
-    //====== basic fields ======
-    field Field1(sf::Vector2i(480, 900), sf::Vector2i(720, 540), window);
-
-    field Field2(sf::Vector2i(480, 900), sf::Vector2i(1200, 540), window);
-
-    field Field3(sf::Vector2i(300, 600), sf::Vector2i(1700, 540), window);
-
-    //====== list`s field ======
-    field ListField(sf::Vector2i(410, 680), sf::Vector2i(240, 520), window);
+	// ====== Exit button =======                                                               // initialization sequence
+	char exit[12] = "Exit";
+	button Exit(sf::Vector2i(100, 40), sf::Vector2i(60, 30), window, exit);
 
 
-    //====== Image Icon ======
+	//====== change mod button ======
+	char mod[12] = "watch";
+	button Mod(sf::Vector2i(300, 40), sf::Vector2i(250, 30), window, mod);
 
-    icon ImgInfo(sf::Vector2i(960, 100), sf::Vector2i(960, 140), window, var::imgname, var::resolution);
-
-    //====== tags Icon ======
-    std::string tagicon = "Image tags:";
-    icon Tagicon(sf::Vector2i(960, 30), sf::Vector2i(960, 840), window, tagicon);
-
-
-    text_field searchbar(sf::Vector2i(410,30), sf::Vector2i(240, 195));
-    searchbar.setColor(100,100,100);
+	//====== Add tag button ======
+	char add[] = "Add tag";
+	button Add(sf::Vector2i(200, 40), sf::Vector2i(140, 900), window, add);
 
 
-    while (window.isOpen()) {
-        sf::Event event;
-        sf::Vector2i mousepos = sf::Mouse::getPosition(window);                                     // current mouse position 
+	//====== Delete tag button ======
+	char del[12] = "Del tag";
+	button Del(sf::Vector2i(200, 40), sf::Vector2i(340, 900), window, del);
 
-        while (window.pollEvent(event)) {                                                            // main event loop
+	//====== Add/Replace tags ======
+	button add_replace(sf::Vector2i(100, 30), sf::Vector2i(290, 595), window, "A/R");
+	add_replace.setOutlineThickness(0);
+	add_replace.setColour(100, 100, 100, 1);
 
-            
-            sf::Vector2i scale = sf::Vector2i(300, 50);
-            sf::Vector2i pos = sf::Vector2i(330, 70);
+	//====== Apply tags to Single/Multiple images ======
+	button apply_to(sf::Vector2i(100, 30), sf::Vector2i(390, 595), window, "S/M");
+	apply_to.setOutlineThickness(0);
+	apply_to.setColour(100, 100, 100, 1);
 
-            window.clear(sf::Color(0, 0, 0));
-           
+	//====== basic fields ======
+	field Field1(sf::Vector2i(480, 900), sf::Vector2i(720, 540), window);
 
-            Field1.show(window);
-            Field2.show(window);
-            Field3.show(window);
-            ListField.show(window);
-            ImgInfo.show(window);
-            Tagicon.show(window);
+	field Field2(sf::Vector2i(480, 900), sf::Vector2i(1200, 540), window);
+
+	field Field3(sf::Vector2i(300, 600), sf::Vector2i(1700, 540), window);
+
+	//====== list`s field ======
+	field ListField(sf::Vector2i(410, 680), sf::Vector2i(240, 520), window);
 
 
-            // button functions 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {                                 // close the program
-                window.close();
-                break;
-            }
-            //if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {                                      // debug stuff
-            //    if (var::shortview == false) {
-            //        var::addTag = 1;
-            //    }
-            //}
-            //if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {                                      // debug stuff
-            //    if (var::shortview == false) {
-            //        var::delTag = 1;
-            //    }
-            //}
+	//====== Image Icon ======
 
-            if (var::exit == 1) {                                                                   // close the program
-                window.close();
-                break;
-            }
+	icon ImgInfo(sf::Vector2i(960, 100), sf::Vector2i(960, 140), window, var::imgname, var::resolution);
 
-            if (var::addTag == 1) {                                                                 // adding new tag to tags array
-                var::shortview = true;
+	//====== tags Icon ======
+	std::string tagicon = "Image tags:";
+	icon Tagicon(sf::Vector2i(960, 30), sf::Vector2i(960, 840), window, tagicon);
 
-                if (var::curTag > 14) {                                                             // some checks
-                    //window.close();
-                    std::cout << "Max number of tags reached!" << var::curTag << std::endl;
-                    var::shortview = false;
-                    var::addTag = 0;
-                }
 
-                else if (var::curTag < 0 || var::curTag > 14) {
-                    std::cout << "curTag alert! " << var::curTag << std::endl;
-                    var::shortview = false;
-                    window.close();
-                }
+	text_field search_bar(sf::Vector2i(410, 30), sf::Vector2i(240, 195));
+	search_bar.setColor(100, 100, 100);
 
-                else {
-                    /////////////////////////////////
+	text_field assign_bar(sf::Vector2i(210, 30), sf::Vector2i(140, 595));
+	assign_bar.setColor(100, 100, 100);
 
-                    var::tags[var::curTag].setSelected(true);                                                    // set on selection of the tag (planned, but not currently in use )
-                    var::tags[var::curTag].showIgnore(1);                                                      // allowing the tag to display (only for static array usage)
-                    var::tags[var::curTag].setPosition(sf::Vector2i(var::curtagpos.x, var::curtagpos.y));   // setting tag`s position
-                    switch (event.type) {
-                    case sf::Event::TextEntered:
-                        var::addTag = var::tags[var::curTag].typedOn(event);                                 // function that writes name of the tag
+	text_field folder_path(sf::Vector2i(300, 40), sf::Vector2i(1700, 200));
+	folder_path.setColor(100, 100, 100);
 
-                    }
-                    var::tags[var::curTag].show(window, false);
+	while (window.isOpen()) {
+		sf::Event event;
+		sf::Vector2i mousepos = sf::Mouse::getPosition(window);                                     // current mouse position 
 
-                    ///////////////////////////////
+		while (window.pollEvent(event)) {                                                            // main event loop
 
-                    if (var::addTag == 0) {
-                        try {
-                            var::tags = tagsNumberChanged(var::curTag, true);                                   // expanding tags array at 1
-                            //std::cout << var::tags[var::curTag].getPosition().x << "<<<<<<" << std::endl;        // 
-                            if ((var::curTag + 1) % 5 == 0) {                                                   // calculating future tag`s position
-                                var::curTag += 1;
-                                var::curtagpos.x = var::startpoint.x;
-                                var::curtagpos.y += 40;
-                                var::shortview = false;
-                            }
-                            else {
-                                var::curtagpos.x = var::tags[var::curTag].getPosition().x + int(var::tags[var::curTag].getTagLength()) + 10;
-                                var::curTag += 1;
-                                var::shortview = false;
-                            }
-                        }
-                        catch (const std::exception ex) {
-                            std::cout << " Warning! Malfunction detected! " << std::endl;
-                            window.close();
-                        }
 
-                    }
-                }
+			sf::Vector2i scale = sf::Vector2i(300, 50);
+			sf::Vector2i pos = sf::Vector2i(330, 70);
 
-                //var::shortview = false;
-            }
+			window.clear(sf::Color(0, 0, 0));
 
-            if (var::delTag == 1) {                                                                 // deleting last tag from tags 
-                var::curTag -= 1;
-                if (var::curTag < 0) {                                                          // some checks
-                    var::curTag = 0;
+
+			Field1.show(window);
+			Field2.show(window);
+			Field3.show(window);
+			ListField.show(window);
+			ImgInfo.show(window);
+			Tagicon.show(window);
+
+
+			// button functions 
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {                                 // close the program
+				window.close();
+				break;
+			}
+			//if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {                                      // debug stuff
+			//    if (var::shortview == false) {
+			//        var::addTag = 1;
+			//    }
+			//}
+			//if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {                                      // debug stuff
+			//    if (var::shortview == false) {
+			//        var::delTag = 1;
+			//    }
+			//}
+
+			if (var::exit == 1) {                                                                   // close the program
+				window.close();
+				break;
+			}
+
+			if (var::addTag == 1) {                                                                 // adding new tag to tags array
+				var::shortview = true;
+
+				if (var::curTag > 14) {                                                             // some checks
+					//window.close();
+					std::cout << "Max number of tags reached!" << var::curTag << std::endl;
+					var::shortview = false;
+					var::addTag = 0;
+				}
+
+				else if (var::curTag < 0 || var::curTag > 14) {
+					std::cout << "curTag alert! " << var::curTag << std::endl;
+					var::shortview = false;
+					window.close();
+				}
+
+				else {
+					/////////////////////////////////
+
+					var::tags[var::curTag].setSelected(true);                                                    // set on selection of the tag (planned, but not currently in use )
+					var::tags[var::curTag].showIgnore(1);                                                      // allowing the tag to display (only for static array usage)
+					var::tags[var::curTag].setPosition(sf::Vector2i(var::curtagpos.x, var::curtagpos.y));   // setting tag`s position
+					switch (event.type) {
+					case sf::Event::TextEntered:
+						var::addTag = var::tags[var::curTag].typedOn(event);                                 // function that writes name of the tag
+
+					}
+					var::tags[var::curTag].show(window, false);
+
+					///////////////////////////////
+
+					if (var::addTag == 0) {
+						try {
+							var::tags = tagsNumberChanged(var::curTag, true);                                   // expanding tags array at 1
+							//std::cout << var::tags[var::curTag].getPosition().x << "<<<<<<" << std::endl;        // 
+							if ((var::curTag + 1) % 5 == 0) {                                                   // calculating future tag`s position
+								var::curTag += 1;
+								var::curtagpos.x = var::startpoint.x;
+								var::curtagpos.y += 40;
+								var::shortview = false;
+							}
+							else {
+								var::curtagpos.x = var::tags[var::curTag].getPosition().x + int(var::tags[var::curTag].getSize().x) + 10;
+								var::curTag += 1;
+								var::shortview = false;
+							}
+						}
+						catch (const std::exception ex) {
+							std::cout << " Warning! Malfunction detected! " << std::endl;
+							window.close();
+						}
+
+					}
+				}
+
+				//var::shortview = false;
+			}
+
+			if (var::delTag == 1) {                                                                 // deleting last tag from tags 
+				var::curTag -= 1;
+				if (var::curTag < 0) {                                                          // some checks
+					var::curTag = 0;
 #ifdef DEB
-                    std::cout << "No tags to delete..." << std::endl;
+					std::cout << "No tags to delete..." << std::endl;
 #endif
-                    var::delTag = 0;
-                }
-                else if (var::curTag < -1 || var::curTag > 14) {
-                    std::cout << "curTag alert! " << var::curTag << std::endl;
-                    window.close();
-                }
-                else {
-                    if ((var::curTag + 1) % 5 == 0) {                                           //recalculating future tag`s position
-                        var::curtagpos.x = var::tags[var::curTag].getPosition().x;
-                        var::curtagpos.y -= 40;
-                        var::tags = tagsNumberChanged(var::curTag, false);                      //squizzing tags array at 1 and deleting the last tag
-                        var::delTag = 0;
+					var::delTag = 0;
+				}
+				else if (var::curTag < -1 || var::curTag > 14) {
+					std::cout << "curTag alert! " << var::curTag << std::endl;
+					window.close();
+				}
+				else {
+					if ((var::curTag + 1) % 5 == 0) {                                           //recalculating future tag`s position
+						var::curtagpos.x = var::tags[var::curTag].getPosition().x;
+						var::curtagpos.y -= 40;
+						var::tags = tagsNumberChanged(var::curTag, false);                      //squizzing tags array at 1 and deleting the last tag
+						var::delTag = 0;
 #ifdef DEB
-                        std::cout << "deltag sequence done" << std::endl;
+						std::cout << "deltag sequence done" << std::endl;
 #endif
-                    }
-                    else {
-                        var::curtagpos.x = var::tags[var::curTag].getPosition().x;
-                        var::tags = tagsNumberChanged(var::curTag, false);
-                        var::delTag = 0;
+					}
+					else {
+						var::curtagpos.x = var::tags[var::curTag].getPosition().x;
+						var::tags = tagsNumberChanged(var::curTag, false);
+						var::delTag = 0;
 #ifdef DEB
-                        std::cout << "deltag sequence done" << std::endl;
+						std::cout << "deltag sequence done" << std::endl;
 #endif
-                    }
-                }
-            }
+					}
+				}
+			}
 
-            for (unsigned int i = 0; i < var::tagcount; i++) {
-                var::tags[i].show(window, false);                                                          // display all active tags on the screen
-            }
+			if (var::changeMod == 1) {                                                              // changing 'edit' and 'watch' modes 
+				//-------
+			}
 
-            if (var::changeMod == 1) {                                                              // changing 'edit' and 'watch' modes 
-                //-------
-            }
+			if (var::addReplace == 1) {
 
-            if (var::selFolder == 1) {                                                              // folder selection
-                //win window2;                                                                      // additional window generation
-                //var::shortview = true;                                                            // disable main window buttons
-                //var::selFolder = window2.winprocess();                                            // activate the additional window
-                //std::cout << var::selFolder << std::endl;
-                //var::selFolder = 0;
-                //var::shortview = false;                                                           // enable buttons
+			}
 
+			if (var::applyTo == 1) {
 
-            }
+			}
 
-            if (var::selected >= 0) {
-                
-                    if (formatCheck(getcount(var::selected)) == ".PNG" || formatCheck(getcount(var::selected)) == ".JPG" || formatCheck(getcount(var::selected)) == ".JPEG") {
-                        imageLoad(var::selected, sf::Vector2i(940, 520));
-                        var::imgname = getcount(var::selected);
-                        var::resolution = std::to_string(var::texture.getSize().x) + "X" + std::to_string(var::texture.getSize().y);
-                        ImgInfo.setText(var::imgname, var::resolution, window);
-                        ImgInfo.show(window);
-                        var::selected = -1;
-                    }
-                    else {
-                        try {
-                        open(var::selected);
+			if (var::setPath == 1) {                                                              // folder selection
 
-                        menu.update(getcounter(), sf::Vector2i(300, 600), sf::Vector2i(1700, 540));
-                        for (int i = 0; i < getcounter(); i++) {
-                            menu.setText(i, getcount(i));
-                        }
-                        //std::cout << "file opened" << std::endl;
-                        var::selected = -1;
-                        }
-                        catch (std::exception& ex) {
-                            std::cout << "Exception in ImageX.cpp: " << ex.what() << std::endl;
-                        }
-                    }
-                
+				var::shortview = true;
+				folder_path.setSelected(true);
+				switch (event.type) {
+				case sf::Event::TextEntered:
+					var::setPath = folder_path.typedOn(event);                                 // function that writes name of the tag
 
-            }
+				}
+				if (var::setPath == 0) {
+					var::shortview = false;
 
-            if (var::search_select >= 0) {
+				}
+				folder_path.show(window);
 
-                // int ID = getTagID(search_results[var::search_select]);
-                // unsigned int* tagged_images = getTaggedImages(ID);
-                // searchbar.setText(tagged_images[0]);
-                var::search_results = 1 + searchbar.getText().size(); //getcounter();
-                search_menu.update(var::search_results, sf::Vector2i(410, 200), sf::Vector2i(240, 320));
-                for (int i = 0; i < var::search_results; i++) {
+			}
 
-                    search_menu.setText(i, std::to_string(i) /*search_results[i]*/);
-                    search_menu.show(window);
-                }
+			if (var::selected >= 0) {
 
-                
-                var::search_select = -1;
-            }
+				if (formatCheck(getcount(var::selected)) == ".PNG" || formatCheck(getcount(var::selected)) == ".JPG" || formatCheck(getcount(var::selected)) == ".JPEG") {
+					imageLoad(var::selected, sf::Vector2i(940, 520));
+					var::imgname = getcount(var::selected);
+					var::resolution = std::to_string(var::texture.getSize().x) + "X" + std::to_string(var::texture.getSize().y);
+					ImgInfo.setText(var::imgname, var::resolution, window);
+					ImgInfo.show(window);
+					var::selected = -1;
+				}
+				else {
+					try {
+						open(var::selected);
 
-            if (var::search == 1) {
-                var::shortview = true;
-                searchbar.setSelected(true);
-                switch (event.type) {
-                case sf::Event::TextEntered:
-                    var::search = searchbar.typedOn(event);                                 // function that writes name of the tag
-                    // getSearchResults(&search_results[], image or tag);
-
-                }
-                /*searchbar.show(window);*/
-                if (var::search == 0) {
-                    var::shortview = false;
-                    searchbar.getText();
-                }
-                var::search_results = 1 + searchbar.getText().size(); //getcounter();
-                search_menu.update(var::search_results, sf::Vector2i(410, 200), sf::Vector2i(240, 320));
-                for (int i = 0; i < var::search_results; i++) {
-
-                    search_menu.setText(i, std::to_string(i) /*search_results[i]*/);
-                    search_menu.show(window);
-                }
-                
-                searchbar.show(window);
-                //search_menu.show(window);
-            }
-
-            if (var::watchMode == 1) {                                                              // hiding all stuff and projecting the image in fullscreen mode
-                //-------
-            }
-            //======
-            switch (event.type) {
-            case sf::Event::MouseButtonPressed:
-                var::exit = Exit.pressed1(var::exit, window);
-                if (var::shortview != true) {
-                    var::watchMode = Mod.pressed(var::watchMode, event, window, false);
-                    var::selFolder = Folder.pressed(var::selFolder, event, window, false);
-                    var::addTag = Add.pressed(var::addTag, event, window, false);
-                    var::delTag = Del.pressed(var::delTag, event, window, false);
-
-                    var::search = searchbar.pressed3(var::search,window);
-
-                    var::selected = menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-
-                    var::search_select = search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-
-                    menuStatus1 = 1;
-                    searchStatus = 1;
-                    //status = Field1.pressed(window);                                              // это поля перещелкивания между изображенями в папке
-                    //status = Field2.pressed(window);
-
-                }
-                break;
-            case sf::Event::MouseMoved:
-
-                menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-                search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-                break;
-
-            case sf::Event::MouseButtonReleased:
-
-                //if (var::shortview != true) {
-                var::watchMode = Mod.pressed(var::watchMode, event, window, false);
-                var::selFolder = Folder.pressed(var::selFolder, event, window, false);
-                Add.pressed(var::addTag, event, window, false);
-                var::delTag = Del.pressed(var::delTag, event, window, false);
-
-                var::search = searchbar.pressed3(var::search, window);
-
-                menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-                search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-                menuStatus1 = 0;
-                searchStatus = 0;
-                //}
-                break;
-            }
+						menu.update(getcounter(), sf::Vector2i(300, 600), sf::Vector2i(1700, 540));
+						for (int i = 0; i < getcounter(); i++) {
+							menu.setText(i, getcount(i));
+						}
+						//std::cout << "file opened" << std::endl;
+						var::selected = -1;
+					}
+					catch (std::exception& ex) {
+						std::cout << "Exception in ImageX.cpp: " << ex.what() << std::endl;
+					}
+				}
 
 
-            Exit.show(window);
-            Mod.show(window);
-            Folder.show(window);
-            Add.show(window);
-            Del.show(window);
-            searchbar.show(window);
+			}
 
-            
+			if (var::search_select >= 0) {
 
-            window.draw(var::sprite);
-            menu.show(window);
-            search_menu.show(window);
-            window.display();
-        }
-    }
+				// int ID = getTagID(search_results[var::search_select]);
+				// unsigned int* tagged_images = getTaggedImages(ID);
+				// searchbar.setText(tagged_images[0]);
+				search_menu.setSelected(false);
 
-    return 0;
+				var::search_results = 0;
+
+				/* delete */ var::search_results = 1 + search_bar.getText().size();
+
+				search_menu.update(var::search_results /*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 310));
+				for (int i = 0; i < var::search_results /*getcounter()*/; i++) {
+
+					search_menu.setText(i, std::to_string(i) /*search_results[i]*/);
+				}
+
+				search_bar.setText(std::to_string(var::search_select), window);
+
+				var::search_select = -1;
+			}
+
+			if (var::search == 1) {
+
+				var::shortview = true;
+				search_bar.setSelected(true);
+				search_menu.setSelected(true);
+				switch (event.type) {
+				case sf::Event::TextEntered:
+					var::search = search_bar.typedOn(event);                                 // function that writes name of the tag
+					// getSearchResults(&search_results[], image or tag);
+
+				}
+				/*searchbar.show(window);*/
+				if (var::search == 0) {
+					var::shortview = false;
+
+				}
+				var::search_results = 0;
+
+				/* delete */ var::search_results = 1 + search_bar.getText().size();
+
+				search_menu.update(var::search_results /*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 310));
+				for (int i = 0; i < var::search_results /*getcounter()*/; i++) {
+
+					search_menu.setText(i, std::to_string(i) /*search_results[i]*/);
+					search_menu.show(window);
+				}
+
+				search_bar.show(window);
+				//search_menu.show(window);
+			}
+
+			if (var::assign_select >= 0) {
+				// int ID = getTagID(assign_results[var::assign_select]);
+				// unsigned int* tagged_images = getTaggedImages(ID);
+				// assign_bar.setText(tagged_images[0]);
+				assign_menu.setSelected(false);
+
+				var::assign_results = 0;
+
+				/* delete */ var::assign_results = 1 + assign_bar.getText().size();
+
+				assign_menu.update(var::assign_results /*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 710));
+				for (int i = 0; i < var::assign_results /*getcounter()*/; i++) {
+
+					assign_menu.setText(i, std::to_string(i) /*assign_results[i]*/);
+				}
+
+				assign_bar.setText(std::to_string(var::assign_select), window);
+
+				var::assign_select = -1;
+			}
+
+			if (var::assign == 1) {
+
+				var::shortview = true;
+				assign_bar.setSelected(true);
+				assign_menu.setSelected(true);
+				switch (event.type) {
+				case sf::Event::TextEntered:
+					var::assign = assign_bar.typedOn(event);                                 // function that writes name of the tag
+					// getAssignResults(&assign_results[], image or tag);
+
+				}
+				/*assign_bar.show(window);*/
+				if (var::assign == 0) {
+					var::shortview = false;
+
+				}
+				var::assign_results = 0;
+
+				/* delete */ var::assign_results = 1 + assign_bar.getText().size();
+
+				assign_menu.update(var::assign_results /*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 710));
+				for (int i = 0; i < var::assign_results /*getcounter()*/; i++) {
+
+					assign_menu.setText(i, std::to_string(i) /*assign_results[i]*/);
+					assign_menu.show(window);
+				}
+
+				assign_bar.show(window);
+			}
+
+			if (var::watchMode == 1) {                                                              // hiding all stuff and projecting the image in fullscreen mode
+				//-------
+			}
+
+			for (unsigned int i = 0; i < var::tagcount; i++) {
+				var::tags[i].show(window, false);                                                          // display all active tags on the screen
+			}
+
+			//======
+			switch (event.type) {
+			case sf::Event::MouseButtonPressed:
+				var::exit = Exit.pressed1(var::exit, window);
+				if (var::shortview != true) {
+					// buttons
+					var::watchMode = Mod.pressed(var::watchMode, event, window, false);
+					var::addTag = Add.pressed(var::addTag, event, window, false);
+					var::delTag = Del.pressed(var::delTag, event, window, false);
+					var::addReplace = add_replace.pressed(var::addReplace, event, window, false);
+					var::applyTo = apply_to.pressed(var::applyTo, event, window, false);
+
+					// textfields
+					var::search = search_bar.pressed3(var::search, window);
+					var::assign = assign_bar.pressed3(var::assign, window);
+					var::setPath = folder_path.pressed3(var::setPath, window);
+
+					// menues
+					var::selected = menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+					var::search_select = search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+					var::assign_select = assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+
+					/* menuStatus1 = 1;
+					 searchStatus = 1;*/
+					 //status = Field1.pressed(window);                                              // это поля перещелкивания между изображенями в папке
+					 //status = Field2.pressed(window);
+
+				}
+				break;
+			case sf::Event::MouseMoved:
+
+				menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+				search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+				assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+				break;
+
+			case sf::Event::MouseButtonReleased:
+
+				//if (var::shortview != true) {
+				// buttons
+				var::watchMode = Mod.pressed(var::watchMode, event, window, false);
+				Add.pressed(var::addTag, event, window, false);
+				var::delTag = Del.pressed(var::delTag, event, window, false);
+				var::addReplace = add_replace.pressed(var::addReplace, event, window, false);
+				var::applyTo = apply_to.pressed(var::applyTo, event, window, false);
+
+				// textfields
+				var::search = search_bar.pressed3(var::search, window);
+				var::assign = assign_bar.pressed3(var::assign, window);
+				var::setPath = folder_path.pressed3(var::setPath, window);
+
+				//menues
+				menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+				search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+				assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+				/*menuStatus1 = 0;
+				searchStatus = 0;*/
+				//}
+				break;
+			}
+
+
+			Exit.show(window);
+			Mod.show(window);
+			folder_path.show(window);
+			Add.show(window);
+			Del.show(window);
+			add_replace.show(window);
+			apply_to.show(window);
+			search_bar.show(window);
+			assign_bar.show(window);
+
+
+
+			window.draw(var::sprite);
+			menu.show(window);
+			search_menu.show(window);
+			assign_menu.show(window);
+			window.display();
+		}
+	}
+
+	return 0;
 }
 
 

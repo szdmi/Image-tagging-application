@@ -9,14 +9,16 @@ class tag
 {
 private:
 	sf::ConvexShape convex;													// tag`s body
+	sf::Vector2i conv_size = sf::Vector2i(100,30);
 	sf::Font font;
 	sf::Text textbox;
 	std::ostringstream text;
 	sf::Vector2i position;
 	bool isSelected;
 	int limit = 10;															// characters limit
-	float length = 100.f;														// tag`s  length multiplyer
 	bool ignore = false;													// allows tag to display (used for static array of tags)
+
+	
 	
 
 	void inputLogic(int charTyped);											// stuff for keyboard input
@@ -42,7 +44,7 @@ public:
 
 	void show(sf::RenderWindow& window, bool fixedLength);									
 
-	void setTaglength(float length);
+	void setSize(sf::Vector2i);
 
 	void setText(std::string st, sf::RenderWindow& window);
 
@@ -62,7 +64,7 @@ public:
 
 	const sf::Vector2i getPosition();
 
-	const float getTagLength();												// length of the tag`s body (in characters)
+	const sf::Vector2i getSize();												// length of the tag`s body (in characters)
 
 	void showIgnore(int i);													// (for static arrays usage)
 

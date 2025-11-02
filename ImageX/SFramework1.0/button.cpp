@@ -98,6 +98,14 @@ void button::setPosition(int x, int y) {
     text.setPosition(float(x) , float(y));
 };
 
+sf::Vector2f button::getSize() {
+    return Button.getSize();
+};
+
+float button::getOutlineThickness() {
+    return Button.getOutlineThickness();
+}
+
 void button::setScale(int x, int y) {
 
     Button.setSize(sf::Vector2f(float(x), float(y)));
@@ -132,15 +140,18 @@ void button::setColour(int r, int g, int b, int whatColour) {
         mainColour[1] = g;
         mainColour[2] = b;
         Button.setFillColor(sf::Color(mainColour[0], mainColour[1], mainColour[2]));
+        break;
     case 2:
         secColour[0] = r;           // 150 150 150 
         secColour[1] = g;
         secColour[2] = b;
         Button.setOutlineColor(sf::Color(secColour[0], secColour[1], secColour[2]));
+        break;
     case 3:
         selColour[0] = r;           // 255, 120, 30
         selColour[1] = g;
         selColour[2] = b;
+        break;
     }
 };
 

@@ -122,6 +122,7 @@ void text_field::setTransparent(bool set) {
 };
 
 void text_field::setText(std::string st, sf::RenderWindow& window) {
+	text.str(st);
 	textbox.setString(st);
 	window.draw(textbox);
 };

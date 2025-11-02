@@ -20,35 +20,47 @@ enum ACTION {
 class scroll_menu
 {
 private:
-	sf::Vector2i Position = sf::Vector2i(0,0);
-	sf::Vector2i Size;
-	short int numberOfTags;
-	short int curNumOfTags;
-	sf::Vector2i firstLastTag = sf::Vector2i(0,0);
 
-	sf::Vector2i tagpos = sf::Vector2i(0,30);
+	// menu propertiess
+	sf::Vector2i Position = sf::Vector2i(0,0);
+	sf::Vector2i Size = sf::Vector2i(0,0);
+	short int numberOfTags = 0;
+	short int curNumOfTags = 0;
+	sf::Vector2i firstLastTag = sf::Vector2i(0,0);
+	sf::Vector2i tagpos = sf::Vector2i(0,0);
+	sf::Vector2i startpos = sf::Vector2i(0, 0);
+
+	// mover 
 
 	button mover;
-	short int moverPos;
-	short int moverSize;
+	short int moverPos = 0;
+	short int moverSize = 0;
 	short int mover_status = STATUS::OFF;
+
+	// moverWay
+
 	field moverWay;
 	bool mouseLeftPressed = false;
 
 	short int distance = 30;
-	short int scrollPos;
+	short int scrollPos = 0;
 	short int upperBorder = 0;
 	short int lowerBorder = 0;
 
-	tag tags[100];
-	tag* tagcount;
-	short int status = STATUS::OFF;
-	
-	std::string* textList;
+	// tags
 
-	// rolldown variables
+	tag tags[100];
+	tag* tagcount = nullptr;
+	sf::Vector2i tagSize = sf::Vector2i(100,30);
+	short int status = STATUS::OFF;
+	int indent = 5;
+	
+	std::string* textList = nullptr;
+
+	// dropdown 
+
 	int drop_status = STATUS::OFF;
-	bool dropdown;
+	bool dropdown = false;
 	bool selected = false;
 	button dropButton;
 
@@ -76,6 +88,8 @@ public:
 	short int move(short int y, short int moverWayLength);
 
 	short int pressed(short int y,sf::Event mouse, sf::RenderWindow& window);
+
+	void setSelected(bool set);
 
 	
 

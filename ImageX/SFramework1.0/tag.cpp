@@ -18,7 +18,7 @@ static int selColour[3]{250,130,140};
 void tag::inputLogic(int charTyped) {
 	if (charTyped != KEY::DELETE_KEY && charTyped != KEY::ENTER_KEY && charTyped != KEY::ESCAPE_KEY) {
 		text << static_cast<char>(charTyped);
-		//length += 1.f;
+
 	}
 	else if (charTyped == KEY::DELETE_KEY) {
 		if (text.str().length() > 0) {
@@ -38,7 +38,7 @@ void tag::delLastChar() {
 	text << newt;
 
 	textbox.setString(text.str());
-	//length -= 1.f;
+
 };
 
 
@@ -115,7 +115,7 @@ void tag::operator = (const tag& other) {
 	this->position = other.position;
 	setPosition(position);
 	//std::cout << "position " << other.position.x << std::endl;
-	this->length = other.length;
+	this->conv_size = other.conv_size;
 	this->ignore = other.ignore;
 	isSelected = other.isSelected;
 }
@@ -138,8 +138,8 @@ void tag::show(sf::RenderWindow& window , bool fixedLength) {																			
 
 };
 
-void tag::setTaglength(float length) {
-	this->length = length;
+void tag::setSize(sf::Vector2i size) {
+	this->conv_size = size;
 };
 
 void tag::deleteTag() {
@@ -246,8 +246,8 @@ const sf::Vector2i tag::getPosition() {																							// get position
 	return position;
 };
 
-const float tag::getTagLength() {																									// returns lenght of the tag`s body
-	return length;
+const sf::Vector2i tag::getSize() {
+	return conv_size;
 };
 
 void tag::convexDraw(bool fixed_length) {																							// tag`s body drawing method
@@ -255,16 +255,16 @@ void tag::convexDraw(bool fixed_length) {																							// tag`s body dr
 	
 
 	if (fixed_length == false) {
-		length = minLength + textbox.getGlobalBounds().getSize().x;
+		conv_size.x = minLength + textbox.getGlobalBounds().getSize().x;
 	}
 
 	convex.setPointCount(6);
-	convex.setPoint(0, sf::Vector2f(0.f, 30.f));
+	convex.setPoint(0, sf::Vector2f(0.f, conv_size.y));
 	convex.setPoint(1, sf::Vector2f(0.f, 5.f));
 	convex.setPoint(2, sf::Vector2f(5.f, 0.f));
-	convex.setPoint(3, sf::Vector2f(length, 0.f));
-	convex.setPoint(4, sf::Vector2f(length, 25.f));
-	convex.setPoint(5, sf::Vector2f(length - 5.f, 30.f));
+	convex.setPoint(3, sf::Vector2f(conv_size.x, 0.f));
+	convex.setPoint(4, sf::Vector2f(conv_size.x, conv_size.y - 5));
+	convex.setPoint(5, sf::Vector2f(conv_size.x - 5.f, conv_size.y));
 	if (isSelected == true) {
 		convex.setFillColor(sf::Color(selColour[0], selColour[1], selColour[2]));
 	}
@@ -288,7 +288,7 @@ void tag::convexDraw(bool fixed_length) {																							// tag`s body dr
 //}
 
 short int tag::pressed3(short int status, sf::RenderWindow& window) {															// selection of the tag by mouse ( currently not in use )
-	if (abs(convex.getPosition().x + length / 2 - float(sf::Mouse::getPosition(window).x)) < length / 2) {
+	if (abs(convex.getPosition().x + conv_size.x / 2 - float(sf::Mouse::getPosition(window).x)) < conv_size.x / 2) {
 		if (abs(convex.getPosition().y - float(sf::Mouse::getPosition(window).y)) < 15) {
 			convex.setFillColor(sf::Color(selColour[0], selColour[1], selColour[2]));
 			if (status == 2) {

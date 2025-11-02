@@ -28,6 +28,10 @@ public:
 
 	void setPosition(int x, int y);
 
+	sf::Vector2f getSize();
+
+	float getOutlineThickness();
+
 	void setScale(int x, int y);
 
 	void setText(std::string Text);

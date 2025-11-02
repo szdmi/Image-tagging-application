@@ -142,6 +142,7 @@
     <ClCompile Include="SFramework1.0\icon.cpp" />
     <ClCompile Include="SFramework1.0\scroll_menu.cpp" />
     <ClCompile Include="SFramework1.0\tag.cpp" />
+    <ClCompile Include="Tester.cpp" />
     <ClCompile Include="text_field.cpp" />
     <ClCompile Include="win.cpp" />
   </ItemGroup>
@@ -153,6 +154,7 @@
     <ClInclude Include="SFramework1.0\icon.h" />
     <ClInclude Include="SFramework1.0\scroll_menu.h" />
     <ClInclude Include="SFramework1.0\tag.h" />
+    <ClInclude Include="Tester.h" />
     <ClInclude Include="text_field.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
