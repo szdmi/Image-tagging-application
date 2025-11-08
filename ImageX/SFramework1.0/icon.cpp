@@ -105,6 +105,27 @@ void icon::show(sf::RenderWindow& window) {
 };
 
 void icon::setText(std::string Text, std::string Text2, sf::RenderWindow& window) {
+	
+
+	int maxlength = int((Icon.getSize().x) / text.getCharacterSize());
+	if (Text.length() > maxlength) {
+		std::string tmp = "";
+		for (int i = 0; i < maxlength-3; i++) {
+			tmp += Text[i];
+		}
+		tmp += "...";
+		Text = tmp;
+	}
+
+	if (Text2.length() > maxlength) {
+		std::string tmp = "";
+		for (int i = 0; i < maxlength - 3; i++) {
+			tmp += Text2[i];
+		}
+		tmp += "...";
+		Text2 = tmp;
+	}
+
 	text.setString(Text);
 
 	sf::Vector2f center = text.getGlobalBounds().getSize() / 2.f;

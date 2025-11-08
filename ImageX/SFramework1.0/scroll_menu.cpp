@@ -6,15 +6,16 @@
 
 
 
+
 scroll_menu::scroll_menu() {
 
-	tagcount = new tag;
+	item_count = new Item;
 	textList = new std::string;
 };
 
 scroll_menu::~scroll_menu() {
 
-	delete[] tagcount;
+	delete[] item_count;
 	delete[] textList;
 
 }
@@ -24,8 +25,8 @@ scroll_menu::scroll_menu(short int number, sf::Vector2i menuSize, sf::Vector2i p
 	Tester::act_testing(false);
 
 	startpos.x = 0;
-	startpos.y = tagSize.y / 2;
-	tagpos = startpos;
+	startpos.y = itemSize.y / 2;
+	itempos = startpos;
 
 	if (dropdown == false) {
 
@@ -70,7 +71,7 @@ void scroll_menu::setScale(sf::Vector2i menuSize) {
 	Size = menuSize;
 
 	if (dropdown == true) {
-		dropButton.setScale(Size.x, tagSize.y);
+		dropButton.setScale(Size.x, itemSize.y);
 	}
 	else {
 		Position.x = Position.x - Size.x / 2;
@@ -87,28 +88,28 @@ void scroll_menu::update(short int number, sf::Vector2i menuSize, sf::Vector2i p
 	setScale(menuSize);
 	setPosition(position);
 
-	numberOfTags = number;
+	numberOfItems = number;
 
-	if (tagcount != nullptr) {
-		delete[] tagcount;
-		tagcount = nullptr;
+	if (item_count != nullptr) {
+		delete[] item_count;
+		item_count = nullptr;
 	}
 	if (textList != nullptr) {
 		delete[] textList;
 		textList = nullptr;
 	}
 
-	firstLastTag.x = 0;
+	firstLastItem.x = 0;
 
-	if (numberOfTags > 0) {
+	if (numberOfItems > 0) {
 		Tester::act_testing(false);
 		Tester::print("generating arrays");
-		tagcount = new tag[numberOfTags];
-		textList = new std::string[numberOfTags];
+		item_count = new Item[numberOfItems];
+		textList = new std::string[numberOfItems];
 
 		Tester::print("setting up mover");
 
-		moverSize = pow(Size.y, 2) / (numberOfTags * tagSize.y);
+		moverSize = pow(Size.y, 2) / (numberOfItems * itemSize.y);
 		moverPos = moverSize / 2;
 
 		mover.setScale(20, moverSize);
@@ -122,9 +123,9 @@ void scroll_menu::update(short int number, sf::Vector2i menuSize, sf::Vector2i p
 
 		Tester::print("calculating scrollPos");
 
-		scrollPos = short int((float(moverPos) / float(Size.y)) * float(numberOfTags * tagSize.y));
+		scrollPos = short int((float(moverPos) / float(Size.y)) * float(numberOfItems * itemSize.y));
 
-		Tester::print("begin counting the curNumOfTags");
+		Tester::print("begin counting the curNumOfItems");
 
 		upperBorder = moverSize / 2;
 		lowerBorder = Size.y - moverSize / 2;
@@ -132,16 +133,16 @@ void scroll_menu::update(short int number, sf::Vector2i menuSize, sf::Vector2i p
 		std::string t;
 		do {
 
-			tagcount[i].setPosition(sf::Vector2i(tagpos.x + Position.x, tagpos.y + Position.y));
-			tagcount[i].setSize(sf::Vector2i(Size.x - mover.getSize().x - indent, tagSize.y));
+			item_count[i].setPosition(sf::Vector2i(itempos.x + Position.x, itempos.y + Position.y));
+			item_count[i].setSize(sf::Vector2i(Size.x - mover.getSize().x - indent, itemSize.y));
 
-			tagpos.y += distance;
+			itempos.y += distance;
 			i++;
 
-		} while (tagpos.y <= (Size.y - tagSize.y / 2) && i != numberOfTags);
+		} while (itempos.y <= (Size.y - itemSize.y / 2) && i != numberOfItems);
 
-		curNumOfTags = i;
-		tagpos = startpos;
+		curNumOfItems = i;
+		itempos = startpos;
 		Tester::print("counted");
 		Tester::act_testing(false);
 	}
@@ -162,9 +163,9 @@ void scroll_menu::setColour(int r, int g, int b, int whatColor) {
 		mover.setColour(r, g, b, 3);
 
 	case 4:
-		tagcount->setColour(r, g, b, 1);
+		item_count->setColour(r, g, b, 1);
 	case 5:
-		tagcount->setColour(r, g, b, 3);
+		item_count->setColour(r, g, b, 3);
 	case 6:
 		moverWay.setColor(r, g, b);
 	}
@@ -178,15 +179,15 @@ void scroll_menu::show(sf::RenderWindow& window) {
 	}
 	if (selected == true) {
 
-		if (numberOfTags > Size.y / 30) {
+		if (numberOfItems > Size.y / 30) {
 			moverWay.show(window);
 			mover.show(window);
 		}
 
-		if (numberOfTags > 0) {
-			for (short int i = firstLastTag.x; i < firstLastTag.x + curNumOfTags; i++) {
+		if (numberOfItems > 0) {
+			for (short int i = firstLastItem.x; i < firstLastItem.x + curNumOfItems; i++) {
 
-				if (i > numberOfTags) {
+				if (i > numberOfItems) {
 					Tester::print("Alert! Out of array!  i > max  1");
 					window.close();
 				}
@@ -194,7 +195,7 @@ void scroll_menu::show(sf::RenderWindow& window) {
 					Tester::print("Alert! Out of array!  i < 0    1");
 					window.close();
 				}
-				else if (tagcount[i].getPosition().y > (0 + Position.y) && tagcount[i].getPosition().y < (Size.y + Position.y)) {
+				else if (item_count[i].getPosition().y > (0 + Position.y) && item_count[i].getPosition().y < (Size.y + Position.y)) {
 					std::string t;
 					t = textList[i];
 					int maxlength = int((Size.x - mover.getSize().x - indent) / 15 /* - serves to cut length of text like : "Some_colou....png"*/);
@@ -209,10 +210,9 @@ void scroll_menu::show(sf::RenderWindow& window) {
 						}
 						t = tmp;
 					}
-					tagcount[i].setSize(sf::Vector2i(Size.x - mover.getSize().x - indent, tagSize.y));
-					tagcount[i].setText(t, window);
-					tagcount[i].showIgnore(1);
-					tagcount[i].show(window, true);
+					item_count[i].setSize(sf::Vector2i(Size.x - mover.getSize().x - indent, itemSize.y));
+					item_count[i].setText(t, window);
+					item_count[i].show(window, true);
 				}
 				else {
 
@@ -228,30 +228,30 @@ short int scroll_menu::move(short int y, short int moverWayLength) {
 	if (y <= Position.y + lowerBorder && y >= Position.y + upperBorder) {
 		moverPos = y;
 		mover.setPosition(Position.x + Size.x - mover.getSize().x / 2, moverPos);
-		scrollPos = short int((float(moverPos - Position.y) / float(moverWayLength)) * (numberOfTags * 30));
+		scrollPos = short int((float(moverPos - Position.y) / float(moverWayLength)) * (numberOfItems * 30));
 		int i = 1;
 		while (i * distance <= scrollPos - Size.y / 2) {				// here would be more usefull at least binary search
 			i += 1;
 		}
-		firstLastTag.x = i - 1;
+		firstLastItem.x = i - 1;
 	}
 	else if (y > Position.y + lowerBorder) {
 		moverPos = lowerBorder;
 		mover.setPosition(Position.x + Size.x - mover.getSize().x / 2, Position.y + moverPos);
-		scrollPos = short int((float(moverPos) / float(moverWayLength)) * (numberOfTags * 30));
-		firstLastTag.x = numberOfTags - curNumOfTags;
+		scrollPos = short int((float(moverPos) / float(moverWayLength)) * (numberOfItems * 30));
+		firstLastItem.x = numberOfItems - curNumOfItems;
 	}
 	else {
 		moverPos = upperBorder;
 		mover.setPosition(Position.x + Size.x - mover.getSize().x / 2, Position.y + moverPos);
-		scrollPos = short int((float(moverPos) / float(moverWayLength)) * (numberOfTags * 30));
-		firstLastTag.x = 0;
+		scrollPos = short int((float(moverPos) / float(moverWayLength)) * (numberOfItems * 30));
+		firstLastItem.x = 0;
 	}
 
-	for (short int i = firstLastTag.x; i < firstLastTag.x + curNumOfTags; i++) {
+	for (short int i = firstLastItem.x; i < firstLastItem.x + curNumOfItems; i++) {
 
 
-		if (i > numberOfTags) {
+		if (i > numberOfItems) {
 			Tester::print("Alert! Out of array!  i > max   2");
 			break;
 		}
@@ -259,12 +259,12 @@ short int scroll_menu::move(short int y, short int moverWayLength) {
 			Tester::print("Alert! Out of array!  i < 0   2");
 		}
 		else {
-			tagcount[i].setPosition(sf::Vector2i(tagpos.x + Position.x, tagpos.y + Position.y));
-			tagpos.y += distance;
+			item_count[i].setPosition(sf::Vector2i(itempos.x + Position.x, itempos.y + Position.y));
+			itempos.y += distance;
 		}
 	}
 
-	tagpos = startpos;
+	itempos = startpos;
 	return 0;
 };
 
@@ -310,7 +310,7 @@ short int scroll_menu::pressed(short int y, sf::Event event, sf::RenderWindow& w
 
 		//								- if cursor is in bounds of mover_way and number of elements is greater than the size of menu box - 
 
-		if (mover_status == STATUS::ON && numberOfTags * distance > Size.y) {
+		if (mover_status == STATUS::ON && numberOfItems * distance > Size.y) {
 
 			switch (event.type) {
 			case sf::Event::MouseButtonReleased:
@@ -345,8 +345,8 @@ short int scroll_menu::pressed(short int y, sf::Event event, sf::RenderWindow& w
 		else if (mover_status != STATUS::ON) {
 
 			Tester::print(" - NON mover action");
-			for (short int i = firstLastTag.x; (i < firstLastTag.x + curNumOfTags) && tagcount != nullptr; i++) {
-				mover_status = tagcount[i].pressed3(0, window);								// ask which tag have the cursor in his bounds
+			for (short int i = firstLastItem.x; (i < firstLastItem.x + curNumOfItems) && item_count != nullptr; i++) {
+				mover_status = item_count[i].pressed3(0, window);								// ask which item have the cursor in his bounds
 
 				if (mover_status == STATUS::ON) {											// return state to normal
 					mover_status = STATUS::OFF;

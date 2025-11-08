@@ -9,6 +9,12 @@ enum STATUS {
     WAIT = 2
 };
 
+static sf::Font font;
+
+void button::loadButtonFont() {
+     font = loadFont(font);
+};
+
 sf::Vector2f button::round(const sf::Vector2f vector)
 {
     return sf::Vector2f{ std::round(vector.x), std::round(vector.y) };
@@ -26,7 +32,6 @@ button::button(sf::Vector2i scale, sf::Vector2i position, sf::RenderWindow& wind
     Button.setOutlineColor(sf::Color(secColour[0], secColour[1], secColour[2]));
     
     // text
-    font = loadFont(font);
     textstr << T;
     text.setString(textstr.str());
     text.setFont(font);
@@ -53,7 +58,6 @@ button::button(sf::Vector2i scale, sf::Vector2i position, sf::RenderWindow& wind
     Button.setOutlineColor(sf::Color(secColour[0], secColour[1], secColour[2]));
 
     // text
-    font = loadFont(font);
     text.setString(Text);
     text.setFont(font);
     text.setFillColor(sf::Color::White);
@@ -79,7 +83,6 @@ button::button() {
     Button.setOutlineColor(sf::Color(secColour[0], secColour[1], secColour[2]));
 
     // text
-    font = loadFont(font);
     text.setString("Set text");
     text.setFont(font);
     text.setFillColor(sf::Color::White);

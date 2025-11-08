@@ -137,6 +137,7 @@
     <ClCompile Include="..\..\..\Laboratory\Испытательная\Испытательная\fmgr.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="ImageX.cpp" />
+    <ClCompile Include="Item.cpp" />
     <ClCompile Include="SFramework1.0\button.cpp" />
     <ClCompile Include="SFramework1.0\field.cpp" />
     <ClCompile Include="SFramework1.0\icon.cpp" />
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Laboratory\Испытательная\Испытательная\fmgr.h" />
     <ClInclude Include="font.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="SFramework1.0\button.h" />
     <ClInclude Include="SFramework1.0\field.h" />
     <ClInclude Include="SFramework1.0\icon.h" />

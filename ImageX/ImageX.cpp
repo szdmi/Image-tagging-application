@@ -1,8 +1,9 @@
 #include <math.h>
 #include "SFramework1.0\icon.h"
+#include "SFramework1.0\tag.h"
 //#include "win.h"
 #include "SFramework1.0\scroll_menu.h"
-#include "C:\Users\slava\source\repos\SFramework\fmgr\fmgr.h"
+#include "C:\Users\slava\source\Laboratory\Испытательная\Испытательная\fmgr.h"
 #include "text_field.h"
 
 //#define MAX_TAGS = 15
@@ -51,6 +52,10 @@ namespace var {
 	std::string curFolder;
 	short int selected = -1;
 	sf::RectangleShape imageborder;
+	bool fullscreen = false;
+
+	// icons
+	sf::Image fail_image;
 
 
 
@@ -104,23 +109,10 @@ static tag* tagsNumberChanged(short int n, bool add_or_delete) {
 
 }
 
-void imageLoad(int n, sf::Vector2i field) {
-
-	if (!var::image.loadFromFile(getFilePath(n))) {
-		var::imgname = "ERROR WHILE LOADING IMAGE";
-	}
-	else {
-		if (!var::texture.loadFromImage(var::image)) {
-			var::imgname = "ERROR WHILE LOADING TEXTURE";
-		}
-		else {
-			var::sprite.setTexture(var::texture, true);
-		}
-	}
-
-
+float sprite_resize(sf::Vector2i field) {
 	sf::Vector2u texture_size = var::texture.getSize();
 	float resize = 0.f;
+
 
 	if (float(texture_size.x) / field.x > float(texture_size.y) / field.y) {
 		resize = float(texture_size.x) / field.x;
@@ -129,10 +121,30 @@ void imageLoad(int n, sf::Vector2i field) {
 		resize = float(texture_size.y) / field.y;
 	}
 
+	return resize;
+}
+
+
+void imageLoad(int n, sf::Vector2i field) {
+
+	if (var::image.loadFromFile(getFilePath(n)) == false) {
+		var::imgname = "ERROR WHILE LOADING image";
+	}
+
+	if (var::texture.loadFromImage(var::image) == false) {
+		var::imgname = "ERROR WHILE LOADING texture";
+		var::texture.loadFromImage(var::fail_image);
+
+	}
+	else {
+		var::sprite.setTexture(var::texture, true);
+	}
+
+	float resize = sprite_resize(field);
+
 	var::sprite.setScale(sf::Vector2f(1.f / resize, 1.f / resize));
 	var::sprite.setPosition(sf::Vector2f(960.f - var::texture.getSize().x / (2 * resize), 490.f - var::texture.getSize().y / (2 * resize)));
-	std::cout << getFilePath(n) << " path " << std::endl;
-
+	
 };
 
 int main() {
@@ -147,9 +159,19 @@ int main() {
 	var::tags = new tag[1];                                                                         // array of tags of the image
 	var::tagcount = 1;                                                                              // tagcount must be always bigger by 1, because of addTag function 
 
+	tag::loadTagFont();
+	button::loadButtonFont();
+	Item::loadItemFont();
+
+	var::fail_image.loadFromFile("C:/Users/slava/source/repos/ImageX/icons/broken-image.png");
+
 	//====== file manager ======
 	launch();
 	open(0);
+	setfilter(".jpg");
+	//setfilter(".jpeg");
+	//setfilter(".png");
+
 	scroll_menu menu(getcounter(), sf::Vector2i(300, 600), sf::Vector2i(1700, 540), false);         // set count of objects
 
 	scroll_menu search_menu(15/*getcounter()*/, sf::Vector2i(410, 200), sf::Vector2i(240, 310), false);
@@ -239,14 +261,7 @@ int main() {
 
 			window.clear(sf::Color(0, 0, 0));
 
-
-			Field1.show(window);
-			Field2.show(window);
-			Field3.show(window);
-			ListField.show(window);
-			ImgInfo.show(window);
-			Tagicon.show(window);
-
+			
 
 			// button functions 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {                                 // close the program
@@ -359,10 +374,6 @@ int main() {
 #endif
 					}
 				}
-			}
-
-			if (var::changeMod == 1) {                                                              // changing 'edit' and 'watch' modes 
-				//-------
 			}
 
 			if (var::addReplace == 1) {
@@ -524,22 +535,77 @@ int main() {
 			}
 
 			if (var::watchMode == 1) {                                                              // hiding all stuff and projecting the image in fullscreen mode
-				//-------
+				var::fullscreen = true;
+				float resize = sprite_resize(sf::Vector2i(window.getSize().x, window.getSize().y));
+
+				var::sprite.setScale(sf::Vector2f(1.f / resize, 1.f / resize));
+				var::sprite.setPosition(sf::Vector2f(960.f - var::texture.getSize().x / (2 * resize), 520.f - var::texture.getSize().y / (2 * resize)));
+			}
+			else {
+				var::fullscreen = false;
+				float resize = sprite_resize(sf::Vector2i(940, 520));
+
+				var::sprite.setScale(sf::Vector2f(1.f / resize, 1.f / resize));
+				var::sprite.setPosition(sf::Vector2f(960.f - var::texture.getSize().x / (2 * resize), 490.f - var::texture.getSize().y / (2 * resize)));
 			}
 
-			for (unsigned int i = 0; i < var::tagcount; i++) {
-				var::tags[i].show(window, false);                                                          // display all active tags on the screen
-			}
-
+			
 			//======
 			switch (event.type) {
 			case sf::Event::MouseButtonPressed:
 				var::exit = Exit.pressed1(var::exit, window);
-				if (var::shortview != true) {
-					// buttons
-					var::watchMode = Mod.pressed(var::watchMode, event, window, false);
-					var::addTag = Add.pressed(var::addTag, event, window, false);
-					var::delTag = Del.pressed(var::delTag, event, window, false);
+				if (!var::fullscreen) {
+					if (var::shortview != true) {
+						// buttons
+						var::watchMode = Mod.pressed(var::watchMode, event, window, true);
+						var::addTag = Add.pressed(var::addTag, event, window, false);
+
+						//var::delTag = Del.pressed(var::delTag, event, window, false);
+
+						var::addReplace = add_replace.pressed(var::addReplace, event, window, false);
+						var::applyTo = apply_to.pressed(var::applyTo, event, window, false);
+
+						// textfields
+						var::search = search_bar.pressed3(var::search, window);
+						var::assign = assign_bar.pressed3(var::assign, window);
+						var::setPath = folder_path.pressed3(var::setPath, window);
+
+						// menues
+						var::selected = menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+						var::search_select = search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+						var::assign_select = assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+						if (var::curTag > 0) {
+							var::delTag = var::tags[var::curTag-1].pressed3(0, window);
+						}
+
+						
+						/* menuStatus1 = 1;
+						 searchStatus = 1;*/
+						 //status = Field1.pressed(window);                                              // это поля перещелкивания между изображенями в папке
+						 //status = Field2.pressed(window);
+
+					}
+				}
+				else {
+					var::watchMode = Mod.pressed(var::watchMode, event, window, true);
+				}
+				break;
+			case sf::Event::MouseMoved:
+				if (!var::fullscreen) {
+					menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+					search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+					assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+				}
+				break;
+
+			case sf::Event::MouseButtonReleased:
+
+				//if (var::shortview != true) {
+				// buttons
+				if (!var::fullscreen) {
+					var::watchMode = Mod.pressed(var::watchMode, event, window, true);
+					Add.pressed(var::addTag, event, window, false);
+					//var::delTag = Del.pressed(var::delTag, event, window, false);
 					var::addReplace = add_replace.pressed(var::addReplace, event, window, false);
 					var::applyTo = apply_to.pressed(var::applyTo, event, window, false);
 
@@ -548,67 +614,52 @@ int main() {
 					var::assign = assign_bar.pressed3(var::assign, window);
 					var::setPath = folder_path.pressed3(var::setPath, window);
 
-					// menues
-					var::selected = menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-					var::search_select = search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-					var::assign_select = assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-
-					/* menuStatus1 = 1;
-					 searchStatus = 1;*/
-					 //status = Field1.pressed(window);                                              // это поля перещелкивания между изображенями в папке
-					 //status = Field2.pressed(window);
-
+					//menues
+					menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+					search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+					assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
+					/*menuStatus1 = 0;
+					searchStatus = 0;*/
+					//}
 				}
-				break;
-			case sf::Event::MouseMoved:
-
-				menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-				search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-				assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-				break;
-
-			case sf::Event::MouseButtonReleased:
-
-				//if (var::shortview != true) {
-				// buttons
-				var::watchMode = Mod.pressed(var::watchMode, event, window, false);
-				Add.pressed(var::addTag, event, window, false);
-				var::delTag = Del.pressed(var::delTag, event, window, false);
-				var::addReplace = add_replace.pressed(var::addReplace, event, window, false);
-				var::applyTo = apply_to.pressed(var::applyTo, event, window, false);
-
-				// textfields
-				var::search = search_bar.pressed3(var::search, window);
-				var::assign = assign_bar.pressed3(var::assign, window);
-				var::setPath = folder_path.pressed3(var::setPath, window);
-
-				//menues
-				menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-				search_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-				assign_menu.pressed(sf::Mouse::getPosition(window).y, event, window);
-				/*menuStatus1 = 0;
-				searchStatus = 0;*/
-				//}
+				else {
+					var::watchMode = Mod.pressed(var::watchMode, event, window, true);
+				}
 				break;
 			}
 
 
-			Exit.show(window);
-			Mod.show(window);
-			folder_path.show(window);
-			Add.show(window);
-			Del.show(window);
-			add_replace.show(window);
-			apply_to.show(window);
-			search_bar.show(window);
-			assign_bar.show(window);
+			
+			if (!var::fullscreen) {
+
+				Field1.show(window);
+				Field2.show(window);
+				Field3.show(window);
+				ListField.show(window);
+				ImgInfo.show(window);
+				Tagicon.show(window);
+
+				folder_path.show(window);
+				Add.show(window);
+				Del.show(window);
+				add_replace.show(window);
+				apply_to.show(window);
+				search_bar.show(window);
+				assign_bar.show(window);
+
+				for (unsigned int i = 0; i < var::tagcount; i++) {
+					var::tags[i].show(window, false);                                                          // display all active tags on the screen
+				}
 
 
+				menu.show(window);
+				search_menu.show(window);
+				assign_menu.show(window);
+			}
 
 			window.draw(var::sprite);
-			menu.show(window);
-			search_menu.show(window);
-			assign_menu.show(window);
+			Exit.show(window);
+			Mod.show(window);
 			window.display();
 		}
 	}

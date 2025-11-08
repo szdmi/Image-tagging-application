@@ -1,7 +1,7 @@
 #pragma once
 
 #include "button.h"
-#include "tag.h"
+#include "Item.h"
 #include "field.h"
 #include <list>
 
@@ -24,10 +24,10 @@ private:
 	// menu propertiess
 	sf::Vector2i Position = sf::Vector2i(0,0);
 	sf::Vector2i Size = sf::Vector2i(0,0);
-	short int numberOfTags = 0;
-	short int curNumOfTags = 0;
-	sf::Vector2i firstLastTag = sf::Vector2i(0,0);
-	sf::Vector2i tagpos = sf::Vector2i(0,0);
+	short int numberOfItems = 0;
+	short int curNumOfItems = 0;
+	sf::Vector2i firstLastItem = sf::Vector2i(0,0);
+	sf::Vector2i itempos = sf::Vector2i(0,0);
 	sf::Vector2i startpos = sf::Vector2i(0, 0);
 
 	// mover 
@@ -47,11 +47,11 @@ private:
 	short int upperBorder = 0;
 	short int lowerBorder = 0;
 
-	// tags
+	// items
 
-	tag tags[100];
-	tag* tagcount = nullptr;
-	sf::Vector2i tagSize = sf::Vector2i(100,30);
+	Item items[100];
+	Item* item_count = nullptr;
+	sf::Vector2i itemSize = sf::Vector2i(100,30);
 	short int status = STATUS::OFF;
 	int indent = 5;
 	
@@ -79,7 +79,7 @@ public:
 
 	void setScale(sf::Vector2i menuSize);
 
-	void setColour(int r, int g, int b, int whatColor);		// 1 - Btn_main 2 - Btn_sec 3 - Btn_sel 4 - tag_main 5 - tag_sel 6 - mvr_way
+	void setColour(int r, int g, int b, int whatColor);		// 1 - Btn_main 2 - Btn_sec 3 - Btn_sel 4 - item_main 5 - item_sel 6 - mvr_way
 
 	void update(short int number, sf::Vector2i menuSize, sf::Vector2i position);
 

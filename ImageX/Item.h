@@ -3,19 +3,18 @@
 #include <sstream>
 #include <iostream>
 
-class button;
+class Item
 
-class tag
 {
+
+
+
+
 private:
 	sf::ConvexShape convex;													// tag`s body
 	sf::Vector2i conv_size = sf::Vector2i(100,30);
 	//sf::Font font;
 	sf::Text textbox;
-
-	button* del_button;
-	sf::Vector2i but_size = sf::Vector2i(15,15);
-	
 	std::ostringstream text;
 	sf::Vector2i position;
 	bool isSelected;
@@ -23,11 +22,6 @@ private:
 	bool ignore = false;													// allows tag to display (used for static array of tags)
 
 	
-	
-
-	void inputLogic(int charTyped);											// stuff for keyboard input
-
-	void delLastChar();														// stuff for keyboard input
 
 	void convexDraw( bool fixed_length);											// method to draw tag`s body
 
@@ -36,17 +30,17 @@ private:
 	
 public:
 	
-	tag();
+	Item();
 
-	tag(sf::Vector2i startpoint);
+	Item(sf::Vector2i startpoint);
 
-	tag(std::string tagName);
+	Item(std::string tagName);
 
-	~tag();
+	~Item();
 
-	void operator = (const tag& other);
+	void operator = (const Item& other);
 
-	static void loadTagFont();
+	static void loadItemFont();
 
 	void show(sf::RenderWindow& window, bool fixedLength);									
 
@@ -58,9 +52,7 @@ public:
 
 	void setSelected(bool select);											
 
-	std::string getText();
-
-	short int typedOn(sf::Event input);										
+	std::string getText();					
 
 	void select();															// change select (true => false, and vice versa)
 
@@ -72,10 +64,9 @@ public:
 
 	const sf::Vector2i getSize();												// length of the tag`s body (in characters)
 
-	void showIgnore(int i);													// (for static arrays usage)
-
-	void deleteTag();														
+	void deleteItem();
 
 	short int pressed3(short int status, sf::RenderWindow& window);			
+
 };
 

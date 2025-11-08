@@ -6,7 +6,6 @@ class button
 private:
 	sf::RectangleShape Button;
 	sf::Text text;
-	sf::Font font;
 	bool btnIsPressed = false;
 	
 	std::ostringstream textstr;
@@ -25,6 +24,8 @@ public:
 	button();
 	button(sf::Vector2i scale, sf::Vector2i position, sf::RenderWindow& window, std::string T);
 	button(sf::Vector2i scale, sf::Vector2i position, sf::RenderWindow& window, char Text[], unsigned int status);
+
+	static void loadButtonFont();
 
 	void setPosition(int x, int y);
 
