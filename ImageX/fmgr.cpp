@@ -83,11 +83,12 @@ std::string formatCheck(std::string st) {
 void open(std::string fullpath) {     //  if you enter image/directory full path
     try {
     if (fullpath != "") {
-
+        count.clear();
         pd = opendir((fullpath).c_str());
         dirname = fullpath;
     }
     else {
+        count.clear();
         pd = opendir((dirname).c_str());
     }
     do {

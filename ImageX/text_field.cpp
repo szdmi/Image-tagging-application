@@ -165,11 +165,11 @@ short int text_field::typedOn(sf::Event input) {																						// main ke
 				isSelected = false;
 				return 0;
 			}
-			else if (text.str().length() <= 8) {
+			else if (text.str().length() <= limit) {
 				inputLogic(chartyped);
 
 			}
-			else if (text.str().length() > 8 && chartyped == KEY::DELETE_KEY) {
+			else if (text.str().length() > limit && chartyped == KEY::DELETE_KEY) {
 				inputLogic(chartyped);
 			}
 		}

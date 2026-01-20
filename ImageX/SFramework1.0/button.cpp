@@ -20,6 +20,13 @@ sf::Vector2f button::round(const sf::Vector2f vector)
     return sf::Vector2f{ std::round(vector.x), std::round(vector.y) };
 }
 
+void button::center_Text(sf::Text& text) {
+    sf::Vector2f center = text.getGlobalBounds().getSize() / 2.f;
+    sf::Vector2f localBounds = center + text.getLocalBounds().getPosition();
+    sf::Vector2f rounded = round(localBounds);
+    text.setOrigin(rounded);
+}
+
 button::button(sf::Vector2i scale, sf::Vector2i position, sf::RenderWindow& window, std::string T) {
 
     Button.setSize(sf::Vector2f(float(scale.x), float(scale.y)));
@@ -37,10 +44,8 @@ button::button(sf::Vector2i scale, sf::Vector2i position, sf::RenderWindow& wind
     text.setFont(font);
     text.setFillColor(sf::Color::White);
     text.setCharacterSize(unsigned int(20));
-    sf::Vector2f center = text.getGlobalBounds().getSize() / 2.f;
-    sf::Vector2f localBounds = center + text.getLocalBounds().getPosition();
-    sf::Vector2f rounded = round(localBounds);
-    text.setOrigin(rounded);
+
+    center_Text(text);
     text.setPosition(float(position.x), float(position.y));
     text.setStyle(sf::Text::Bold);
 };
@@ -62,10 +67,8 @@ button::button(sf::Vector2i scale, sf::Vector2i position, sf::RenderWindow& wind
     text.setFont(font);
     text.setFillColor(sf::Color::White);
     text.setCharacterSize(unsigned int(20));
-    sf::Vector2f center = text.getGlobalBounds().getSize() / 2.f;
-    sf::Vector2f localBounds = center + text.getLocalBounds().getPosition();
-    sf::Vector2f rounded = round(localBounds);
-    text.setOrigin(rounded);
+
+    center_Text(text);
     text.setPosition(float(position.x), float(position.y));
     text.setStyle(sf::Text::Bold);
     status = STATUS::OFF;
@@ -87,17 +90,17 @@ button::button() {
     text.setFont(font);
     text.setFillColor(sf::Color::White);
     text.setCharacterSize(unsigned int(20));
-    sf::Vector2f center = text.getGlobalBounds().getSize() / 2.f;
-    sf::Vector2f localBounds = center + text.getLocalBounds().getPosition();
-    sf::Vector2f rounded = round(localBounds);
-    text.setOrigin(rounded);
+
+    center_Text(text);
     text.setPosition(100.f, 150.f);
     text.setStyle(sf::Text::Bold);
 };
 
 void button::setPosition(int x, int y) {
 
-    Button.setPosition(sf::Vector2f(float(x), float(y)));
+    center_Text(text);
+
+    Button.setPosition(float(x), float(y));
     text.setPosition(float(x) , float(y));
 };
 
@@ -113,7 +116,7 @@ void button::setScale(int x, int y) {
 
     Button.setSize(sf::Vector2f(float(x), float(y)));
     Button.setOrigin(float(x / 2), float(y / 2));
-    text.setCharacterSize(unsigned int(20));
+    //text.setCharacterSize(unsigned int(20));
     //text.setOrigin(float(x/2), float(y/2));
     
     
@@ -121,14 +124,12 @@ void button::setScale(int x, int y) {
 
 void button::setText(std::string Text) {
 
-    textstr.str("");
-    textstr << Text;
-    text.setString(textstr.str());
+    //textstr.str("");
+    //textstr << Text;
+    text.setString(Text);
 
-    sf::Vector2f center = text.getGlobalBounds().getSize() / 2.f;
-    sf::Vector2f localBounds = center + text.getLocalBounds().getPosition();
-    sf::Vector2f rounded = round(localBounds);
-    text.setOrigin(rounded);
+    center_Text(text);
+
     text.setPosition(Button.getPosition());
 };
 

@@ -4,7 +4,11 @@
 
 static sf::Font font;
 
-
+enum STATUS {
+	OFF = 0,
+	ON = 1,
+	WAIT = 2
+};
 
 enum KEY {
 	DELETE_KEY = 8,
@@ -56,10 +60,11 @@ void tag::delLastChar() {
 tag::tag() {
 	convexDraw(true);
 	del_button = new button();
-	del_button->setScale(but_size.x, but_size.y);
-	del_button->setPosition(convex.getPosition().x + conv_size.x - 10, convex.getPosition().y + convex.getScale().y / 2);
-	del_button->setOutlineThickness(0);
 	del_button->setText("X");
+	del_button->setScale(but_size.x, but_size.y);
+	del_button->setPosition(convex.getPosition().x + conv_size.x, convex.getPosition().y + convex.getScale().y / 2);
+	del_button->setOutlineThickness(0);
+
 
 	// text
 	textbox.setFont(font);
@@ -84,10 +89,10 @@ tag::tag() {
 tag::tag(sf::Vector2i startpoint) {
 	convexDraw(false);
 	del_button = new button();
-	del_button->setScale(but_size.x, but_size.y);
-	del_button->setPosition(convex.getPosition().x + conv_size.x - 10, convex.getPosition().y + convex.getScale().y / 2);
-	del_button->setOutlineThickness(0);
 	del_button->setText("X");
+	del_button->setScale(but_size.x, but_size.y);
+	del_button->setPosition(convex.getPosition().x + conv_size.x, convex.getPosition().y + convex.getScale().y / 2);
+	del_button->setOutlineThickness(0);
 
 	// text
 	textbox.setFont(font);
@@ -104,10 +109,11 @@ tag::tag(sf::Vector2i startpoint) {
 tag::tag(std::string tagName) {
 	convexDraw(false);
 	del_button = new button();
-	del_button->setScale(but_size.x, but_size.y);
-	del_button->setPosition(convex.getPosition().x + conv_size.x - 10, convex.getPosition().y + convex.getScale().y / 2);
-	del_button->setOutlineThickness(0);
 	del_button->setText("X");
+	del_button->setScale(but_size.x, but_size.y);
+	del_button->setPosition(convex.getPosition().x + conv_size.x, convex.getPosition().y + convex.getScale().y / 2);
+	del_button->setOutlineThickness(0);
+
 
 	// text
 	textbox.setFont(font);
@@ -152,6 +158,7 @@ void tag::show(sf::RenderWindow& window, bool fixedLength) {																				
 		else {
 			convexDraw(true);
 		}
+		del_button->setPosition(convex.getPosition().x + conv_size.x, convex.getPosition().y + convex.getScale().y / 2);
 		window.draw(convex);
 		window.draw(textbox);
 		del_button->show(window);
@@ -261,8 +268,8 @@ void tag::setPosition(sf::Vector2i Pos) {																						// set position
 	position.x = Pos.x;
 	position.y = Pos.y;
 	convex.setPosition(sf::Vector2f(float(position.x), float(position.y)));
-	textbox.setPosition(convex.getPosition().x - (convex.getOrigin().x / 2.f), convex.getPosition().y - (convex.getOrigin().y / 2.f));
-	del_button->setPosition(convex.getPosition().x + conv_size.x - 10, convex.getPosition().y + convex.getScale().y / 2);
+	textbox.setPosition(position.x - (convex.getOrigin().x / 2.f), position.y - (convex.getOrigin().y / 2.f));
+	del_button->setPosition(float(position.x) + conv_size.x , position.y + convex.getScale().y/2);
 };
 
 const sf::Vector2i tag::getPosition() {																							// get position
@@ -274,20 +281,20 @@ const sf::Vector2i tag::getSize() {
 };
 
 void tag::convexDraw(bool fixed_length) {																							// tag`s body drawing method
-	float minLength = 0.f;
+	//float minLength = 0.f;
 
 
 	if (fixed_length == false) {
-		conv_size.x = minLength + textbox.getGlobalBounds().getSize().x;
+		conv_size.x = but_size.x + textbox.getGlobalBounds().getSize().x;
 	}
 
 	convex.setPointCount(6);
 	convex.setPoint(0, sf::Vector2f(0.f, conv_size.y));
 	convex.setPoint(1, sf::Vector2f(0.f, 5.f));
 	convex.setPoint(2, sf::Vector2f(5.f, 0.f));
-	convex.setPoint(3, sf::Vector2f(conv_size.x + but_size.x, 0.f));
-	convex.setPoint(4, sf::Vector2f(conv_size.x + but_size.x, conv_size.y - 5));
-	convex.setPoint(5, sf::Vector2f(conv_size.x + but_size.x - 5.f, conv_size.y));
+	convex.setPoint(3, sf::Vector2f(conv_size.x , 0.f));
+	convex.setPoint(4, sf::Vector2f(conv_size.x , conv_size.y - 5));
+	convex.setPoint(5, sf::Vector2f(conv_size.x  - 5.f, conv_size.y));
 	if (isSelected == true) {
 		convex.setFillColor(sf::Color(selColour[0], selColour[1], selColour[2]));
 	}
@@ -313,7 +320,7 @@ void tag::convexDraw(bool fixed_length) {																							// tag`s body dr
 short int tag::pressed3(short int status, sf::RenderWindow& window) {															// selection of the tag by mouse ( currently not in use )
 
 	if (del_button->pressed3(0, window) == 1) {
-		return 1;
+		return STATUS::ON;
 	}
 
 	/*if (abs(convex.getPosition().x + conv_size.x / 2 - float(sf::Mouse::getPosition(window).x)) < conv_size.x / 2) {
@@ -330,7 +337,7 @@ short int tag::pressed3(short int status, sf::RenderWindow& window) {											
 
 		}
 	}*/
-	return 0;
+	return STATUS::OFF;
 
 
 };

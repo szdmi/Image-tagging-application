@@ -14,7 +14,7 @@ private:
 	sf::Text textbox;
 
 	button* del_button;
-	sf::Vector2i but_size = sf::Vector2i(15,15);
+	sf::Vector2i but_size = sf::Vector2i(30,30);
 	
 	std::ostringstream text;
 	sf::Vector2i position;

@@ -49,7 +49,7 @@ private:
 
 	// items
 
-	Item items[100];
+
 	Item* item_count = nullptr;
 	sf::Vector2i itemSize = sf::Vector2i(100,30);
 	short int status = STATUS::OFF;

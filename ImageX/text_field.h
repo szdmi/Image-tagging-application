@@ -13,7 +13,7 @@ private:
 	sf::Vector2i position;
 	std::ostringstream text;
 	bool isSelected;
-	int limit = 10;
+	int limit = 100;
 
 	sf::Color color;
 

@@ -22,7 +22,7 @@ scroll_menu::~scroll_menu() {
 
 scroll_menu::scroll_menu(short int number, sf::Vector2i menuSize, sf::Vector2i position, bool dropdown) {
 
-	Tester::act_testing(false);
+	Tester::act_testing(true);
 
 	startpos.x = 0;
 	startpos.y = itemSize.y / 2;
@@ -102,7 +102,7 @@ void scroll_menu::update(short int number, sf::Vector2i menuSize, sf::Vector2i p
 	firstLastItem.x = 0;
 
 	if (numberOfItems > 0) {
-		Tester::act_testing(false);
+		Tester::act_testing(true);
 		Tester::print("generating arrays");
 		item_count = new Item[numberOfItems];
 		textList = new std::string[numberOfItems];
@@ -144,7 +144,7 @@ void scroll_menu::update(short int number, sf::Vector2i menuSize, sf::Vector2i p
 		curNumOfItems = i;
 		itempos = startpos;
 		Tester::print("counted");
-		Tester::act_testing(false);
+		Tester::act_testing(true);
 	}
 };
 
@@ -226,6 +226,7 @@ void scroll_menu::show(sf::RenderWindow& window) {
 short int scroll_menu::move(short int y, short int moverWayLength) {
 
 	if (y <= Position.y + lowerBorder && y >= Position.y + upperBorder) {
+		Tester::print("if 1");
 		moverPos = y;
 		mover.setPosition(Position.x + Size.x - mover.getSize().x / 2, moverPos);
 		scrollPos = short int((float(moverPos - Position.y) / float(moverWayLength)) * (numberOfItems * 30));
@@ -236,12 +237,14 @@ short int scroll_menu::move(short int y, short int moverWayLength) {
 		firstLastItem.x = i - 1;
 	}
 	else if (y > Position.y + lowerBorder) {
+		Tester::print("else if 1");
 		moverPos = lowerBorder;
 		mover.setPosition(Position.x + Size.x - mover.getSize().x / 2, Position.y + moverPos);
 		scrollPos = short int((float(moverPos) / float(moverWayLength)) * (numberOfItems * 30));
 		firstLastItem.x = numberOfItems - curNumOfItems;
 	}
 	else {
+		Tester::print("else 1");
 		moverPos = upperBorder;
 		mover.setPosition(Position.x + Size.x - mover.getSize().x / 2, Position.y + moverPos);
 		scrollPos = short int((float(moverPos) / float(moverWayLength)) * (numberOfItems * 30));
@@ -249,7 +252,7 @@ short int scroll_menu::move(short int y, short int moverWayLength) {
 	}
 
 	for (short int i = firstLastItem.x; i < firstLastItem.x + curNumOfItems; i++) {
-
+		Tester::print("for");
 
 		if (i > numberOfItems) {
 			Tester::print("Alert! Out of array!  i > max   2");

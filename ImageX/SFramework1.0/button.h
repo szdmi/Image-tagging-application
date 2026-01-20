@@ -18,6 +18,8 @@ private:
 
 	sf::Vector2f round(const sf::Vector2f vector);
 
+	void center_Text(sf::Text& text);
+
 	bool isInBounds(sf::Vector2f BtnPosition, sf::RenderWindow& window);
 
 public:
